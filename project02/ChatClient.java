@@ -89,7 +89,53 @@ public class ChatClient {
 			}
 		}
 	}
-	public static void listDownAvailableSession() {
+	public static void listDownAvailableSession() throws IOException{
+		boolean noAvailableSession = fromServer.readBoolean();
+		 if(!noAvailableSession) {
+			 int numberOfAvailableSession = fromServer.readInt();
+			 System.out.println(fromServer.readUTF());
+			 for(int i = 0; i < numberOfAvailableSession; i++) {
+			 System.out.println(fromServer.readUTF());
+			 }
+			 System.out.println(fromServer.readUTF());
+			 selectAvailableSession(numberOfAvailableSession);
+		 } else {
+			 System.out.println(fromServer.readUTF());
+				String goMainMenu = scanner.nextLine();
+				toServer.writeUTF(goMainMenu);
+				
+				if (goMainMenu.equalsIgnoreCase("y")) {
+					mainMenuLogic();
+					
+				}	else {
+					listDownAvailableSession();
+				}
+			}
+
+		 }
+	
+	public static void selectAvailableSession(int numberOfAvailableSession) throws IOException{
+		try {
+			 sessionSelected = Integer.parseInt(scanner.nextLine());
+			 toServer.writeInt(sessionSelected);
+			 boolean validSelectedSession = fromServer.readBoolean();
+			 System.out.println(fromServer.readUTF);
+			 if(validSelectedSession) {
+				 if(sessionSelected == numberOfAvailableSession) {
+					 mainMenuLogic();
+				 }else {
+					 chatLogic();
+				 }
+			 }else {
+				 listDownAvailableSession();
+			 }
+			 } catch (NumberFormatException e) {
+			 System.out.println("Selected Session is not valid.");
+			 selectAvailableSession(numberOfAvailableSession);
+			 }
+			 public static void chatLogic() throws IOException {
+				 
+			 }
 	}
 }
 

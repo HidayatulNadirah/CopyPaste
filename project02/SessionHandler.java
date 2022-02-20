@@ -18,6 +18,9 @@ public class SessionHandler {
 		this.client1 = client1;
 		waitingForClient2 = true;
 	}
+	public void connectClient2(Socket client) {
+		
+	}
 
 
 	public void startWaitingOtherClient() {
@@ -34,6 +37,7 @@ public class SessionHandler {
 					System.out.println(getSessionName() + " was waiting, but interrupted.");
 				}
 			}
+			
 			} catch (IOException e) {
 				System.out.println("Communication problem in " + getSessionName());
 			}
