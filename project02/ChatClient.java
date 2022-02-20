@@ -145,7 +145,6 @@ public class ChatClient {
 			selectAvailableSession(numberOfAvailableSession);
 		}
 	}
-		private static boolean chatActive = true;
 
 		public static void chatLogic() throws IOException {
 			String otherClientHostName = fromServer.readUTF();
