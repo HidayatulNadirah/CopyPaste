@@ -65,8 +65,13 @@ public class SessionInitial implements Runnable{
 		}
 
 	}
-	public void startANewSession() {
-
+	public void startANewSession() throws IOException{
+		ChatServer.numberOfSessionCreated++;
+		 SessionHandler chatSession = new SessionHandler(ChatServer.numberOfSessionCreated, client);
+		 System.out.println("New session started: " + chatSession.getSessionName());
+		 toClient.writeUTF("New session started: " + chatSession.getSessionName());
+		 ChatServer.availableSessions.add(chatSession);
+		 chatSession.startWaitingOtherClient();
 	}
 
 	public void listDownAvailableSession() {

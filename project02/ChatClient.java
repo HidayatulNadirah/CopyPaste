@@ -76,7 +76,18 @@ public class ChatClient {
 			mainMenuLogic();
 		}
 	}
-	public static void waitingForOtherClient() {
+	public static void waitingForOtherClient() throws IOException{
+		System.out.println(fromServer.readUTF());
+		boolean waiting = true;
+		while(waiting) {
+			try {
+				Thread.sleep(500);
+				waiting = fromServer.readBoolean();
+				System.out.println(fromServer.readUTF());	
+			} catch (InterruptedException e) {
+				System.out.println("Waiting was interupted.");
+			}
+		}
 	}
 	public static void listDownAvailableSession() {
 	}
