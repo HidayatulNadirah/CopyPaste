@@ -3,9 +3,10 @@ import java.net.Socket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.SocketException;
 
 public class SessionHandler {
-	private Socket client1;
+	private Socket client1, client2;
 	private int sessionId;
 	private boolean waitingForClient2;
 	private DataInputStream fromClient1, fromClient2;
@@ -19,7 +20,8 @@ public class SessionHandler {
 		waitingForClient2 = true;
 	}
 	public void connectClient2(Socket client) {
-		
+		this.client2 = client2;
+		waitingForClient2 = false;
 	}
 
 
@@ -37,14 +39,62 @@ public class SessionHandler {
 					System.out.println(getSessionName() + " was waiting, but interrupted.");
 				}
 			}
-			
-			} catch (IOException e) {
-				System.out.println("Communication problem in " + getSessionName());
+			startChat();
+		} catch (IOException e) {
+			System.out.println("Communication problem in " + getSessionName());
+		}
+	}
+	public void startChat()throws IOException{
+		toClient1.writeUTF(client2.getInetAddress().getHostName());
+		toClient1.writeUTF(client2.getInetAddress().getHostAddress());
+
+		fromClient2 = new DataInputStream(client2.getInputStream());
+		toClient2 = new DataOutputStream(client2.getOutputStream());
+
+		toClient2.writeUTF(client1.getInetAddress().getHostName());
+		toClient2.writeUTF(client1.getInetAddress().getHostAddress());
+
+		while(true) {
+			if(fromClient1.available() > 0) {
+				forwardMessageToClient2();
+				break;
+			}
+			if(fromClient2.available() > 0) {
+				forwardMessageToClient1();
+				break;
+			}
+			if(fromClient1.available()>0) {
+
 			}
 		}
-	
-		public String getSessionName() {
-			return sessionId + " " + client1.getInetAddress().getHostName()+" " + 
-		client1.getInetAddress().getHostAddress();
+	}
+	public void notifyProblemToClient1() throws IOException {
+		toClient1.writeUTF("Other Client has disconnected.");
+		toClient1.writeBoolean(successfullySentToClient2);
+	}
+	public void notifyProblemToClient2() throws IOException {
+		toClient2.writeUTF("Other Client has disconnected.");
+		toClient2.writeBoolean(successfullySentToClient1);
+	}
+	public void forwardMessageToClient1() throws IOException {
+		String message = fromClient2.readUTF();
+		try {
+			toClient1.writeUTF(message);
+		} catch(SocketException e) {
+			successfullySentToClient1 = false;
 		}
+	}
+	public void forwardMessageToClient2() throws IOException {
+		String message = fromClient1.readUTF();
+		try {
+			toClient2.writeUTF(message);
+		} catch(SocketException e) {
+			successfullySentToClient2 = false;
 		}
+	}
+
+	public String getSessionName() {
+		return sessionId + " " + client1.getInetAddress().getHostName()+" " + 
+				client1.getInetAddress().getHostAddress();
+	}
+}
